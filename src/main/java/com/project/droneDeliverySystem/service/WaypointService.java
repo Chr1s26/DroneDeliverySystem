@@ -4,6 +4,7 @@ import com.project.droneDeliverySystem.entity.Delivery;
 import com.project.droneDeliverySystem.repository.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,7 +28,7 @@ public class WaypointService {
                     d.getDestLat() + "\t" + d.getDestLng() + "\t10\t1");
             pw.println("2\t0\t0\t20\t0\t0\t0\t0\t0\t0\t0\t1");
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new ResourceAccessException("Waypoint File Not found");
         }
         return file;
     }

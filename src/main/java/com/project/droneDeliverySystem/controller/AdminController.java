@@ -2,6 +2,7 @@ package com.project.droneDeliverySystem.controller;
 
 import com.project.droneDeliverySystem.entity.Delivery;
 import com.project.droneDeliverySystem.entity.User;
+import com.project.droneDeliverySystem.exception.ResourceNotFoundException;
 import com.project.droneDeliverySystem.repository.DeliveryRepository;
 import com.project.droneDeliverySystem.repository.UserRepository;
 import com.project.droneDeliverySystem.service.WaypointService;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,7 @@ import java.io.File;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 public class AdminController {
 
     @Autowired
@@ -32,7 +34,7 @@ public class AdminController {
     public String adminPage(@RequestParam(defaultValue = "PENDING") String status, Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"ROLE_ADMIN".equals(user.getRole())) {
-            return "redirect:/auth/login";
+            return "redirect:/api/auth/login";
         }
 
         List<Delivery> deliveries = repo.findByStatusOrderByIdDesc(status);
@@ -47,14 +49,14 @@ public class AdminController {
     public String updateStatus(@PathVariable Long id, @RequestParam String status, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"ROLE_ADMIN".equals(user.getRole())) {
-            return "redirect:/auth/login";
+            return "redirect:/api/auth/login";
         }
 
         Delivery d = repo.findById(id).orElseThrow();
         d.setStatus(status);
         repo.save(d);
 
-        return "redirect:/admin?status=PENDING";
+        return "redirect:/api/admin?status=PENDING";
 
     }
 
@@ -80,7 +82,7 @@ public class AdminController {
 
         User currentUser = (User) session.getAttribute("user");
         if (currentUser == null || !"ROLE_ADMIN".equals(currentUser.getRole())) {
-            return "redirect:/home";
+            return "redirect:/api/home";
         }
 
         List<User> users = userRepo.findByIdNot(currentUser.getId());
@@ -91,20 +93,22 @@ public class AdminController {
         return "admin/user-management";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users/{id}/assign-admin")
     public String assignAdmin(@PathVariable Long id) {
-        User user = userRepo.findById(id).orElseThrow();
+        User user = userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found when assigning admin"));
         user.setRole("ROLE_ADMIN");
         userRepo.save(user);
-        return "redirect:/admin/users";
+        return "redirect:/api/admin/users";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users/{id}/remove-admin")
     public String removeAdmin(@PathVariable Long id) {
-        User user = userRepo.findById(id).orElseThrow();
+        User user = userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found when removing admin"));
         user.setRole("ROLE_USER");
         userRepo.save(user);
-        return "redirect:/admin/users";
+        return "redirect:/api/admin/users";
     }
 
 }

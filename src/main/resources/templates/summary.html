@@ -86,7 +86,7 @@
     const dest = JSON.parse(sessionStorage.getItem("destination"));
 
     if (!pkg || !source || !dest) {
-        window.location.href = "/delivery/send";
+        window.location.href = "/api/delivery/send";
     }
 
     packageName.innerText = pkg.packageName;
@@ -102,9 +102,14 @@
     destination.innerText = destinationSpan;
 
 function confirm() {
-    fetch("/delivery/create", {
+const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    fetch("/api/delivery/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+            headers: {
+        "Content-Type": "application/json",
+        [csrfHeader]: csrfToken
+         },
         body: JSON.stringify({
             packageName: pkg.packageName,
             packageDescription: pkg.packageDesc,
@@ -123,18 +128,18 @@ function confirm() {
         if (!res.ok) {
             const errors = await res.json();
             sessionStorage.setItem("formErrors", JSON.stringify(errors));
-            window.location.href = "/delivery/send";
+            window.location.href = "/api/delivery/send";
             return;
         }
 
         sessionStorage.clear();
-        window.location.href = "/success";
+        window.location.href = "/api/success";
     });
 }
 
 
     function goBack() {
-        window.location.href = "/map";
+        window.location.href = "/api/map";
     }
 </script>
 

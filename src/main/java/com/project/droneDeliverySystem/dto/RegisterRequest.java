@@ -3,6 +3,7 @@ package com.project.droneDeliverySystem.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
 
@@ -25,11 +26,11 @@ public class RegisterRequest {
     private String phone;
 
     @NotBlank(message = "Password is required")
-//    @Size(min = 8, message = "Password must be at least 8 characters")
-//    @Pattern(
-//            regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
-//            message = "Password must contain letters and numbers"
-//    )
+    @Size(min = 5, message = "Password must be at least 8 characters")
+    @Pattern(
+            regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$",
+            message = "Password must contain letters and numbers"
+    )
     private String password;
 
     @NotBlank(message = "Confirm password is required")

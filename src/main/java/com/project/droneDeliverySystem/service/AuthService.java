@@ -42,7 +42,7 @@ public class AuthService {
             user.setPassword(encoder.encode(password));
             userRepo.save(user);
         }else{
-            throw new ResourceNotFoundException("User Not Found");
+            throw new ResourceNotFoundException("User Not Found When resetting password");
         }
     }
 }

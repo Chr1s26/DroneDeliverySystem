@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/delivery")
+@RequestMapping("/api/delivery")
 public class DeliveryController {
 
     @Autowired
@@ -28,7 +28,7 @@ public class DeliveryController {
     public String sendPackagePage(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
-            return "redirect:/auth/login";
+            return "redirect:/api/auth/login";
         }
         model.addAttribute("user", user);
         return "send-package";

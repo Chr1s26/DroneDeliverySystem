@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping
+@RequestMapping("/api")
 public class HomeController {
 
     @Autowired
@@ -21,7 +21,7 @@ public class HomeController {
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
-            return "redirect:/auth/login";
+            return "redirect:/api/auth/login";
         }
 
         model.addAttribute("user", user);

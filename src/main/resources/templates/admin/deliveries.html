@@ -146,25 +146,25 @@
 
         <a class="filter"
            th:classappend="${currentStatus == 'PENDING'} ? ' active-filter'"
-           th:href="@{/admin(status='PENDING')}">
+           th:href="@{/api/admin(status='PENDING')}">
             PENDING
         </a>
 
         <a class="filter"
            th:classappend="${currentStatus == 'PROCESSING'} ? ' active-filter'"
-           th:href="@{/admin(status='PROCESSING')}">
+           th:href="@{/api/admin(status='PROCESSING')}">
             Processing
         </a>
 
         <a class="filter"
            th:classappend="${currentStatus == 'COMPLETED'} ? ' active-filter'"
-           th:href="@{/admin(status='COMPLETED')}">
+           th:href="@{/api/admin(status='COMPLETED')}">
             Completed
         </a>
 
         <a class="filter"
            th:classappend="${currentStatus == 'FAILED'} ? ' active-filter'"
-           th:href="@{/admin(status='FAILED')}">
+           th:href="@{/api/admin(status='FAILED')}">
             Failed
         </a>
     </div>
@@ -203,22 +203,25 @@
 
                 <td>
 
-                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                    <form th:action="@{/api/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <input type="hidden" name="status" value="PROCESSING">
                         <button class="cancel">Process</button>
                     </form>
 
-                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                    <form th:action="@{/api/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <input type="hidden" name="status" value="COMPLETED">
                         <button class="complete">Complete</button>
                     </form>
 
-                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                    <form th:action="@{/api/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <input type="hidden" name="status" value="FAILED">
                         <button class="fail">Fail</button>
                     </form>
 
-                    <a th:href="@{/admin/download/{id}(id=${d.id})}">
+                    <a th:href="@{/api/admin/download/{id}(id=${d.id})}">
                         <button class="download">Download</button>
                     </a>
                 </td>

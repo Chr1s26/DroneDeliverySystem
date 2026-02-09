@@ -2,6 +2,7 @@ package com.project.droneDeliverySystem.controller;
 
 import com.project.droneDeliverySystem.dto.UserProfileDto;
 import com.project.droneDeliverySystem.entity.User;
+import com.project.droneDeliverySystem.exception.ResourceNotFoundException;
 import com.project.droneDeliverySystem.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 public class UserProfileController {
 
     @Autowired
@@ -27,11 +28,11 @@ public class UserProfileController {
         Long userId = (Long) session.getAttribute("userId");
 
         if (userId == null) {
-            return "redirect:/auth/login";
+            return "redirect:/api/auth/login";
         }
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found when editing profile"));
 
 
         model.addAttribute("profile", new UserProfileDto(user));
@@ -45,11 +46,11 @@ public class UserProfileController {
         Long userId = (Long) session.getAttribute("userId");
 
         if (userId == null) {
-            return "redirect:/auth/login";
+            return "redirect:/api/auth/login";
         }
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found when editing profile"));
 
 
         if (bindingResult.hasErrors()) {
@@ -57,6 +58,11 @@ public class UserProfileController {
             return "profile/edit-profile";
         }
 
+        if (userRepo.existsByEmailAndIdNot(dto.getEmail(), userId)) {
+            bindingResult.rejectValue("email", "duplicate", "Email already in use");
+            model.addAttribute("user", user);
+            return "profile/edit-profile";
+        }
 
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());

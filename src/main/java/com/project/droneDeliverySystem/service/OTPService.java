@@ -8,6 +8,7 @@ import com.project.droneDeliverySystem.exception.SendOtpFailedException;
 import com.project.droneDeliverySystem.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,32 +23,34 @@ public class OTPService {
     private final UserRepository userRepository;
     private static final long OTP_EXPIRATION_TIME = 1000 * 5 * 60;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     public String generateOtpCode() {return String.format("%06d", new Random().nextInt(999999));}
 
     public void isOtpValid(String email, String otp) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if(userOptional.isEmpty()){
-            throw new ResourceNotFoundException("User Not Found");
-        }
-        User user = userOptional.get();
-        Long otpGeneratedAt = user.getOtpGeneratedAt();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if(System.currentTimeMillis() - otpGeneratedAt > OTP_EXPIRATION_TIME) {
-            throw new OtpExpiredException("OTP has expired.");
+        if (user.getOtpExpiresAt() == null ||
+                user.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new OtpExpiredException("OTP has expired");
         }
-        boolean valid = Objects.equals(otp, user.getOtp());
-        if(!valid) {
-            throw new OtpInvalidException("OTP is invalid");
+
+        if (!passwordEncoder.matches(otp, user.getOtp())) {
+            throw new OtpInvalidException("Invalid OTP");
         }
+
+        user.setOtp(null);
+        user.setOtpExpiresAt(null);
         user.setConfirmedAt(LocalDateTime.now());
+
         userRepository.save(user);
     }
 
     public void sendOtp(User user) {
         var otp = generateOtpCode();
         user.setOtp(otp);
-        user.setOtpGeneratedAt(System.currentTimeMillis());
+        user.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
         userRepository.save(user);
         try{
             emailService.sendOtpEmail(user.getEmail(),otp);

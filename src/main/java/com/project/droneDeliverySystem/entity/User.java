@@ -19,7 +19,7 @@ public class User {
     private String password;
     private String role = "ROLE_USER";
     private String otp;
-    private Long otpGeneratedAt;
+    private LocalDateTime otpExpiresAt;
     private LocalDateTime confirmedAt;
 }
 

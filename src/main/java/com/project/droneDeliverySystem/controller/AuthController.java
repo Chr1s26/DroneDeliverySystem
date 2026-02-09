@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
@@ -63,7 +63,7 @@ public class AuthController {
 
         session.setAttribute("user", user);
         session.setAttribute("userId", user.getId());
-        return "redirect:/home";
+        return "redirect:/api/home";
     }
 
 
@@ -75,6 +75,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("registerRequest") RegisterRequest request, BindingResult bindingResult, Model model) {
+        if(userRepo.findByEmail(request.getEmail()).isPresent()){
+            bindingResult.rejectValue("email", "duplicate", "An account with this email is already registered!!");
+        }
 
         if (bindingResult.hasErrors()) {
             return "auth/register";
@@ -98,7 +101,7 @@ public class AuthController {
             return "auth/register";
         }
 
-        return "redirect:/auth/login";
+        return "redirect:/api/auth/login";
     }
 
     @GetMapping("/forget-password")
@@ -115,7 +118,7 @@ public class AuthController {
 
         otpService.sendOtp(userOp.get());
         session.setAttribute("resetEmail", emailForm.getEmail());
-        return "redirect:/auth/confirm-otp";
+        return "redirect:/api/auth/confirm-otp";
     }
 
     @GetMapping("/confirm-otp")
@@ -141,7 +144,7 @@ public class AuthController {
             return "auth/confirm-otp";
         }
 
-        return "redirect:/auth/reset-password";
+        return "redirect:/api/auth/reset-password";
     }
 
     @PostMapping("/resend-otp")
@@ -173,7 +176,11 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@ModelAttribute("resetPasswordForm") ResetPasswordDTO form, HttpSession session, Model model) {
+    public String resetPassword(@Valid @ModelAttribute("resetPasswordForm") ResetPasswordDTO form, HttpSession session, Model model,BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return "auth/reset-password";
+        }
 
         String email = (String) session.getAttribute("resetEmail");
         if (email == null) {
@@ -189,14 +196,14 @@ public class AuthController {
         authService.resetPassword(email, form.getPassword());
         session.removeAttribute("resetEmail");
 
-        return "redirect:/auth/login";
+        return "redirect:/api/auth/login";
     }
 
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/auth/login";
+        return "redirect:/api/auth/login";
     }
 
 
