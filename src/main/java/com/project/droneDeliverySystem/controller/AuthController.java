@@ -23,7 +23,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -33,16 +32,12 @@ public class AuthController {
 
     @Autowired
     UserRepository userRepo;
-
     @Autowired
     PasswordEncoder encoder;
-
     @Autowired
     AuthService authService;
-
     @Autowired
     OTPService otpService;
-
     @Autowired
     SecurityContextRepository securityContextRepository;
 
@@ -52,14 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(
-            @RequestParam String email,
-            @RequestParam String password,
-            Model model,
-            HttpSession session,
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
+    public String login(@RequestParam String email, @RequestParam String password, Model model, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         User user = userRepo.findByEmail(email).orElse(null);
 
         if (user == null || !encoder.matches(password, user.getPassword())) {
@@ -67,42 +55,28 @@ public class AuthController {
             return "auth/login";
         }
 
-        SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority(user.getRole());
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        null,
-                        List.of(authority)
-                );
-
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, List.of(authority));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        securityContextRepository.saveContext(
-                SecurityContextHolder.getContext(),
-                request,
-                response
-        );
+        securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
 
         session.setAttribute("user", user);
         session.setAttribute("userId", user.getId());
-
         return "redirect:/home";
     }
 
 
     @GetMapping("/register")
-    public String registerPage() {
+    public String registerPage(Model model) {
+        model.addAttribute("registerRequest", new RegisterRequest());
         return "auth/register";
     }
 
     @PostMapping("/register")
-    public String register( @Valid RegisterRequest request, BindingResult bindingResult, Model model) {
+    public String register(@Valid @ModelAttribute("registerRequest") RegisterRequest request, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("error",
-                    bindingResult.getFieldError().getDefaultMessage());
             return "auth/register";
         }
 
@@ -151,7 +125,6 @@ public class AuthController {
 
     @PostMapping("/confirm-otp")
     public String processOtp(@RequestParam("otp") String otp, HttpSession session, Model model) {
-
         String email = (String) session.getAttribute("resetEmail");
         if (email == null) {
             model.addAttribute("otpError", "Session expired. Please try again.");

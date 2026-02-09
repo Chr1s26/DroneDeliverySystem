@@ -23,15 +23,4 @@ public class UserController {
         return new UserProfileDto(u);
     }
 
-
-//    @PutMapping("/{id}")
-//    public String updateProfile(@PathVariable Long id,
-//                                @RequestBody UserProfileDto dto) {
-//        User u = userRepo.findById(id).orElseThrow();
-//        u.setName(dto.getName());
-//        u.setEmail(dto.getEmail());
-//        u.setPhone(dto.getPhone());
-//        userRepo.save(u);
-//        return "Profile updated";
-//    }
 }

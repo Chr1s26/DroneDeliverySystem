@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 public class Otp {
-
     @Id
     @GeneratedValue
     private Long id;

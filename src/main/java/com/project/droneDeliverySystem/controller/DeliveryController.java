@@ -37,11 +37,7 @@ public class DeliveryController {
 
     @PostMapping("/create")
     @ResponseBody
-    public ResponseEntity<?> create(
-            @Valid @RequestBody DeliveryDto dto,
-            BindingResult bindingResult,
-            HttpSession session
-    ) {
+    public ResponseEntity<?> create(@Valid @RequestBody DeliveryDto dto, BindingResult bindingResult, HttpSession session) {
 
         User user = (User) session.getAttribute("user");
         if (user == null) {
@@ -50,9 +46,7 @@ public class DeliveryController {
 
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(err ->
-                    errors.put(err.getField(), err.getDefaultMessage())
-            );
+            bindingResult.getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errors);
         }
 
@@ -70,7 +64,7 @@ public class DeliveryController {
         d.setDestLat(dto.getDestLat());
         d.setDestLng(dto.getDestLng());
 
-        d.setStatus("PROCESSING");
+        d.setStatus("PENDING");
         d.setUser(user);
 
         repo.save(d);

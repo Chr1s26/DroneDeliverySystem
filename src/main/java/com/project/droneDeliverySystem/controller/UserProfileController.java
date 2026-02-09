@@ -6,7 +6,6 @@ import com.project.droneDeliverySystem.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,13 +41,7 @@ public class UserProfileController {
     }
 
     @PostMapping("/edit")
-    public String updateProfile(
-            @Valid @ModelAttribute("profile") UserProfileDto dto,
-            BindingResult bindingResult,
-            Model model,
-            HttpSession session
-
-    ) {
+    public String updateProfile(@Valid @ModelAttribute("profile") UserProfileDto dto, BindingResult bindingResult, Model model, HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
 
         if (userId == null) {

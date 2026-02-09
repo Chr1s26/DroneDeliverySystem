@@ -86,19 +86,17 @@
 <div class="card">
     <h2>Drone Delivery System</h2>
 
-    <!-- ✅ ERROR MESSAGE -->
     <div class="error" th:if="${error}" th:text="${error}"></div>
 
-    <!-- LOGIN FORM -->
-    <form action="/auth/login" method="post">
+    <form th:action="@{/auth/login}" method="post">
         <input name="email" type="email" placeholder="Email" required>
         <input name="password" type="password" placeholder="Password" required>
         <button type="submit">Login</button>
     </form>
 
     <div class="links">
-        <a href="/auth/register">Sign up</a> |
-        <a href="/auth/forget-password">Forgot password?</a>
+        <a th:href="@{/auth/register}">Sign up</a> |
+        <a th:href="@{/auth/forget-password}">Forgot password?</a>
     </div>
 </div>
 </body>

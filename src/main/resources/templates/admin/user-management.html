@@ -43,7 +43,6 @@
             overflow-x: auto;
         }
 
-        /* ===== Table ===== */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -76,7 +75,6 @@
             color: #374151;
         }
 
-        /* ===== Buttons ===== */
         button {
             padding: 8px 14px;
             border-radius: 8px;
@@ -107,10 +105,8 @@
 
 <body>
 
-<!-- Sidebar -->
 <div th:replace="fragments/sidebar :: sidebar(${user})"></div>
 
-<!-- Main -->
 <div class="main">
     <div class="content">
         <h1>👥 User Management</h1>
@@ -139,14 +135,12 @@
 
                     <td>
                         <form th:if="${u.role == 'ROLE_USER'}"
-                              th:action="@{'/admin/users/' + ${u.id} + '/assign-admin'}"
-                              method="post">
+                              th:action="@{'/admin/users/' + ${u.id} + '/assign-admin'}" method="post">
                             <button class="assign">Assign Admin</button>
                         </form>
 
                         <form th:if="${u.role == 'ROLE_ADMIN'}"
-                              th:action="@{'/admin/users/' + ${u.id} + '/remove-admin'}"
-                              method="post">
+                              th:action="@{'/admin/users/' + ${u.id} + '/remove-admin'}" method="post">
                             <button class="remove">Remove Admin</button>
                         </form>
                     </td>

@@ -34,7 +34,6 @@
 
         .error {
             color: #ef4444;
-            text-align: center;
             margin-bottom: 12px;
             font-size: 14px;
         }
@@ -80,21 +79,25 @@
 <div class="card">
     <h2>Create Account</h2>
 
-    <!-- ✅ ERROR MESSAGE -->
     <div class="error" th:if="${error}" th:text="${error}"></div>
 
-    <form action="/auth/register" method="post">
-        <input name="name" placeholder="Full Name" required>
-        <input name="email" type="email" placeholder="Email" required>
-        <input name="phone" placeholder="Phone" required>
-        <input name="password" type="password" placeholder="Password" required>
-        <input name="confirmPassword" type="password" placeholder="Confirm Password" required>
+    <form th:action="@{/auth/register}" th:object = "${registerRequest}" method="post">
+        <input th:field="*{name}" placeholder="Full Name" required>
+        <p class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+        <input th:field="*{email}" type="email" placeholder="Email" required>
+        <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+        <input th:field="*{phone}" placeholder="Phone" required>
+        <p class="error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+        <input th:field="*{password}" type="password" placeholder="Password" required>
+        <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+        <input th:field="*{confirmPassword}" type="password" placeholder="Confirm Password" required>
+        <p class="error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
 
         <button type="submit">Sign Up</button>
     </form>
 
     <div class="links">
-        <a href="/auth/login">Already have an account? Login</a>
+        <a th:href="@{/auth/login}">Already have an account? Login</a>
     </div>
 </div>
 

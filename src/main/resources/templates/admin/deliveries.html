@@ -5,6 +5,7 @@
     <title>Admin Panel</title>
 
     <style>
+
         * { box-sizing: border-box; }
 
         body {
@@ -14,7 +15,6 @@
             min-height: 100vh;
         }
 
-        /* ===== MAIN LAYOUT ===== */
         .main {
             margin-left: 220px;
             padding: 40px;
@@ -29,7 +29,6 @@
             color: #e5e7eb;
         }
 
-        /* ===== STATUS FILTER ===== */
         .filters {
             margin: 20px 0;
         }
@@ -55,7 +54,6 @@
             font-weight: 600;
         }
 
-        /* ===== CARD ===== */
         .card {
             background: white;
             padding: 25px;
@@ -88,7 +86,6 @@
             background: #f9fafb;
         }
 
-        /* ===== PACKAGE CELL ===== */
         .pkg {
             font-weight: 600;
             color: #111827;
@@ -101,17 +98,15 @@
             line-height: 1.4;
         }
 
-        /* ===== STATUS COLORS ===== */
         .status {
             font-weight: 600;
         }
 
-        .PROCESSING { color: #f59e0b; }
+        .PENDING { color: #f59e0b; }
         .COMPLETED { color: #16a34a; }
         .FAILED { color: #dc2626; }
-        .CANCELLED { color: #6b7280; }
+        .PROCESSING { color: #6b7280; }
 
-        /* ===== BUTTONS ===== */
         button {
             padding: 6px 10px;
             margin: 2px;
@@ -123,14 +118,13 @@
 
         .complete { background: #10b981; color: white; }
         .fail { background: #ef4444; color: white; }
-        .cancel { background: #6b7280; color: white; }
+        .processing { background: #6b7280; color: white; }
         .download { background: #3b82f6; color: white; }
 
         button:hover {
             opacity: 0.9;
         }
 
-        /* ===== EMPTY STATE ===== */
         .empty {
             text-align: center;
             padding: 40px 0;
@@ -142,16 +136,20 @@
 
 <body>
 
-<!-- ===== SIDEBAR ===== -->
 <div th:replace="fragments/sidebar :: sidebar(${user})"></div>
 
-<!-- ===== MAIN ===== -->
 <div class="main">
     <h1>👑 Admin Panel</h1>
     <p>Manage all delivery requests submitted by users.</p>
 
-    <!-- ===== STATUS FILTER ===== -->
     <div class="filters">
+
+        <a class="filter"
+           th:classappend="${currentStatus == 'PENDING'} ? ' active-filter'"
+           th:href="@{/admin(status='PENDING')}">
+            PENDING
+        </a>
+
         <a class="filter"
            th:classappend="${currentStatus == 'PROCESSING'} ? ' active-filter'"
            th:href="@{/admin(status='PROCESSING')}">
@@ -169,15 +167,9 @@
            th:href="@{/admin(status='FAILED')}">
             Failed
         </a>
-
-        <a class="filter"
-           th:classappend="${currentStatus == 'CANCELLED'} ? ' active-filter'"
-           th:href="@{/admin(status='CANCELLED')}">
-            Cancelled
-        </a>
     </div>
 
-    <!-- ===== TABLE ===== -->
+
     <div class="card">
 
         <table th:if="${#lists.size(deliveries) > 0}">
@@ -210,6 +202,12 @@
                 </td>
 
                 <td>
+
+                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="status" value="PROCESSING">
+                        <button class="cancel">Process</button>
+                    </form>
+
                     <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
                         <input type="hidden" name="status" value="COMPLETED">
                         <button class="complete">Complete</button>
@@ -220,11 +218,6 @@
                         <button class="fail">Fail</button>
                     </form>
 
-                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
-                        <input type="hidden" name="status" value="CANCELLED">
-                        <button class="cancel">Cancel</button>
-                    </form>
-
                     <a th:href="@{/admin/download/{id}(id=${d.id})}">
                         <button class="download">Download</button>
                     </a>
@@ -233,7 +226,6 @@
             </tbody>
         </table>
 
-        <!-- EMPTY STATE -->
         <div class="empty" th:if="${#lists.size(deliveries) == 0}">
             No deliveries found for this status 🚁
         </div>

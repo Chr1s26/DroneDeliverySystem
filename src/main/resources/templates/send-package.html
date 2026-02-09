@@ -60,7 +60,6 @@
         .btn-next { background: #667eea; color: white; }
         .btn-next:hover { background: #556cd6; }
 
-        /* Error box */
         .error-box {
             display: none;
             background: #fee2e2;
@@ -78,7 +77,6 @@
 <div class="container">
     <h2>📦 Send Package</h2>
 
-    <!-- BACKEND ERROR BOX -->
     <div id="errorBox" class="error-box"></div>
 
     <form id="packageForm">
@@ -105,9 +103,7 @@
 </div>
 
 <script>
-    /* =========================
-       SHOW BACKEND ERRORS
-    ========================= */
+
     window.onload = () => {
         const errors = sessionStorage.getItem("formErrors");
         if (errors) {

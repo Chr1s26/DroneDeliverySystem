@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Data
 public class User {
-
     @Id
     @GeneratedValue
     private Long id;

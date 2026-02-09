@@ -23,16 +23,13 @@ public class AdminController {
 
     @Autowired
     private DeliveryRepository repo;
-
     @Autowired
     private WaypointService waypointService;
-
     @Autowired
     private UserRepository userRepo;
 
-
     @GetMapping
-    public String adminPage(@RequestParam(defaultValue = "PROCESSING") String status, Model model, HttpSession session) {
+    public String adminPage(@RequestParam(defaultValue = "PENDING") String status, Model model, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"ROLE_ADMIN".equals(user.getRole())) {
             return "redirect:/auth/login";
@@ -42,17 +39,12 @@ public class AdminController {
         model.addAttribute("user", user);
         model.addAttribute("deliveries", deliveries);
         model.addAttribute("currentStatus", status);
-        model.addAttribute("pendingCount",
-                repo.countByStatus("PROCESSING"));
+        model.addAttribute("pendingCount", repo.countByStatus("PENDING"));
         return "admin/deliveries";
     }
 
     @PostMapping("/status/{id}")
-    public String updateStatus(
-            @PathVariable Long id,
-            @RequestParam String status,
-            HttpSession session
-    ) {
+    public String updateStatus(@PathVariable Long id, @RequestParam String status, HttpSession session) {
         User user = (User) session.getAttribute("user");
         if (user == null || !"ROLE_ADMIN".equals(user.getRole())) {
             return "redirect:/auth/login";
@@ -62,15 +54,12 @@ public class AdminController {
         d.setStatus(status);
         repo.save(d);
 
-        return "redirect:/admin?status=PROCESSING";
+        return "redirect:/admin?status=PENDING";
 
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<FileSystemResource> download(
-            @PathVariable Long id,
-            HttpSession session
-    ) throws Exception {
+    public ResponseEntity<FileSystemResource> download(@PathVariable Long id, HttpSession session) throws Exception {
 
         User user = (User) session.getAttribute("user");
         if (user == null || !"ROLE_ADMIN".equals(user.getRole())) {
@@ -80,8 +69,7 @@ public class AdminController {
         Delivery d = repo.findById(id).orElseThrow();
         File file = waypointService.generate(d.getId());
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=" + file.getName())
                 .body(new FileSystemResource(file));
     }

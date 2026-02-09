@@ -5,13 +5,12 @@
 <div th:fragment="sidebar(user)">
 
     <style>
-        /* ===== Base ===== */
+
         body {
             margin: 0;
             font-family: "Segoe UI", Arial, sans-serif;
         }
 
-        /* ===== Sidebar ===== */
         .sidebar {
             width: 220px;
             height: 100vh;
@@ -25,7 +24,6 @@
             padding: 20px;
         }
 
-        /* ===== Profile ===== */
         .profile {
             text-align: center;
             margin-bottom: 20px;
@@ -42,7 +40,6 @@
             opacity: 0.95;
         }
 
-        /* ===== Divider ===== */
         .divider {
             border: none;
             height: 1px;
@@ -50,7 +47,6 @@
             margin: 20px 0;
         }
 
-        /* ===== Menu ===== */
         .menu {
             list-style: none;
             padding: 0;
@@ -82,7 +78,6 @@
             text-align: center;
         }
 
-        /* ===== Bottom (Logout) ===== */
         .sidebar-bottom {
             margin-top: auto;
         }
@@ -110,7 +105,6 @@
     </style>
 
     <div class="sidebar">
-        <!-- TOP -->
         <div class="sidebar-top">
             <div class="profile">
                 <div class="avatar">👤</div>
@@ -120,65 +114,29 @@
             <hr class="divider">
 
             <ul class="menu">
-                <li>
-                    <a href="/home">
-                        <span class="icon">🏠</span>
-                        <span>Home</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="/delivery/send">
-                        <span class="icon">📦</span>
-                        <span>Send Package</span>
-                    </a>
-                </li>
+                <li><a href="/home"><span class="icon">🏠</span><span>Home</span></a></li>
+                <li><a href="/delivery/send"><span class="icon">📦</span><span>Send Package</span></a></li>
 
                 <hr class="divider">
 
-                <li>
-                    <a href="/profile/edit">
-                        <span class="icon">👤</span>
-                        <span>Edit Profile</span>
-                    </a>
-                </li>
+                <li><a href="/profile/edit"><span class="icon">👤</span><span>Edit Profile</span></a></li>
 
 
-                <li th:if="${user.role == 'ROLE_USER'}">
-                    <a href="/history">
-                        <span class="icon">📜</span>
-                        <span>My History</span>
-                    </a>
-                </li>
+                <li th:if="${user.role == 'ROLE_USER'}"><a href="/history"><span class="icon">📜</span><span>My History</span></a></li>
 
-                <li th:if="${user.role == 'ROLE_ADMIN'}">
-                    <a href="/admin">
-                        🛠 Admin Panel
-                        <span th:if="${pendingCount > 0}"
-                              style="
+                <li th:if="${user.role == 'ROLE_ADMIN'}"><a href="/admin">🛠 Admin Panel<span th:if="${pendingCount > 0}" style="
                 background:#ef4444;
                 color:white;
                 padding:2px 8px;
                 border-radius:20px;
                 font-size:12px;
-                margin-left:6px;"
-                              th:text="${pendingCount}">
-        </span>
-                    </a>
-                </li>
+                margin-left:6px;" th:text="${pendingCount}"></span></a></li>
 
-
-                <li th:if="${user.role == 'ROLE_ADMIN'}">
-                    <a href="/admin/users">
-                        <span class="icon">🧑‍💼</span>
-                        <span>Assign Admin</span>
-                    </a>
-                </li>
+                <li th:if="${user.role == 'ROLE_ADMIN'}"><a href="/admin/users"><span class="icon">🧑‍💼</span><span>Assign Admin</span></a></li>
 
             </ul>
         </div>
 
-        <!-- BOTTOM -->
         <div class="sidebar-bottom">
             <form th:action="@{/auth/logout}" method="post">
                 <button type="submit" class="logout">🚪 Logout</button>
