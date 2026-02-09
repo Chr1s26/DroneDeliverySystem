@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Location</title>
+
+    <!-- Leaflet CSS -->
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .controls button {
+            padding: 10px 16px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-source {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-dest {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-confirm {
+            background: #667eea;
+            color: white;
+        }
+
+        #map {
+            height: 75vh;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 18px;
+        }
+
+        .footer button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📍 Select Source & Destination</h2>
+
+    <div class="controls">
+        <button class="btn-source" onclick="setMode('source')">Select Source</button>
+        <button class="btn-dest" onclick="setMode('destination')">Select Destination</button>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="footer">
+        <button onclick="goBack()">⬅ Back</button>
+        <button class="btn-confirm" onclick="confirm()">Confirm ➜</button>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map = L.map("map").setView([13.7563, 100.5018], 12); // Bangkok
+
+    L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        {
+            subdomains: "abcd",
+            maxZoom: 19
+        }
+    ).addTo(map);
+
+    let mode = null;
+    let source = null;
+    let destination = null;
+    let sourceMarker = null;
+    let destMarker = null;
+
+    function setMode(m) {
+        mode = m;
+    }
+
+    map.on("click", e => {
+        if (!mode) return;
+
+        if (mode === "source") {
+            if (sourceMarker) map.removeLayer(sourceMarker);
+            source = e.latlng;
+            sourceMarker = L.marker(source).addTo(map).bindPopup("Source").openPopup();
+        }
+
+        if (mode === "destination") {
+            if (destMarker) map.removeLayer(destMarker);
+            destination = e.latlng;
+            destMarker = L.marker(destination).addTo(map).bindPopup("Destination").openPopup();
+        }
+
+        mode = null;
+    });
+
+    function confirm() {
+        if (!source || !destination) {
+            alert("Please select both source and destination");
+            return;
+        }
+
+        sessionStorage.setItem("source", JSON.stringify(source));
+        sessionStorage.setItem("destination", JSON.stringify(destination));
+
+        window.location.href = "/summary";
+    }
+
+    function goBack() {
+        window.location.href = "/delivery/send";
+    }
+</script>
+
+</body>
+</html>

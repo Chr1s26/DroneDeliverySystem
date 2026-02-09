@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm OTP</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .card {
+            width: 500px;
+            background: white;
+            padding: 50px;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 4px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #556cd6;
+        }
+
+        .error {
+            color: #ef4444;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .resend {
+            margin-top: 14px;
+        }
+
+        .resend button {
+            background: transparent;
+            color: #667eea;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <h2>Enter OTP</h2>
+
+    <!-- ERROR / INFO MESSAGE -->
+    <div class="error" th:if="${otpError}" th:text="${otpError}"></div>
+
+    <!-- VERIFY OTP -->
+    <form th:action="@{/auth/confirm-otp}" method="post">
+        <input type="text"
+               name="otp"
+               maxlength="6"
+               placeholder="6-digit OTP"
+               required>
+        <button type="submit">Verify OTP</button>
+    </form>
+
+    <!-- RESEND OTP -->
+    <div class="resend">
+        <form th:action="@{/auth/resend-otp}" method="post">
+            <button type="submit">Resend OTP</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

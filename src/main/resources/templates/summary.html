@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delivery Summary</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        h2 { text-align: center; margin-bottom: 25px; }
+
+        .section { margin-bottom: 20px; }
+        .section h3 {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 22px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-back { background: #e5e7eb; }
+        .btn-confirm { background: #667eea; color: white; }
+        .btn-confirm:hover { background: #556cd6; }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📋 Delivery Summary</h2>
+
+    <div class="section">
+        <h3>📦 Package</h3>
+        <p><b>Name:</b> <span id="packageName"></span></p>
+        <p><b>Description:</b> <span id="packageDesc"></span></p>
+    </div>
+
+    <div class="section">
+        <h3>👤 Receiver</h3>
+        <p><b>Name:</b> <span id="receiverName"></span></p>
+        <p><b>Email:</b> <span id="receiverEmail"></span></p>
+        <p><b>Phone:</b> <span id="receiverPhone"></span></p>
+    </div>
+
+    <div class="section">
+        <h3>📍 Route</h3>
+        <p><b>From:</b> <span id="source"></span></p>
+        <p><b>To:</b> <span id="destination"></span></p>
+    </div>
+
+    <div class="actions">
+        <button class="btn-back" onclick="goBack()">⬅ Back</button>
+        <button class="btn-confirm" onclick="confirm()">Confirm & Submit</button>
+    </div>
+</div>
+
+<script>
+    const pkg = JSON.parse(sessionStorage.getItem("packageData"));
+    const source = JSON.parse(sessionStorage.getItem("source"));
+    const dest = JSON.parse(sessionStorage.getItem("destination"));
+
+    if (!pkg || !source || !dest) {
+        window.location.href = "/delivery/send";
+    }
+
+    packageName.innerText = pkg.packageName;
+    packageDesc.innerText = pkg.packageDesc;
+    receiverName.innerText = pkg.receiverName;
+    receiverEmail.innerText = pkg.receiverEmail;
+    receiverPhone.innerText = pkg.receiverPhone;
+
+    sourceSpan = `${source.lat.toFixed(6)}, ${source.lng.toFixed(6)}`;
+    destinationSpan = `${dest.lat.toFixed(6)}, ${dest.lng.toFixed(6)}`;
+
+    source.innerText = sourceSpan;
+    destination.innerText = destinationSpan;
+
+function confirm() {
+    fetch("/delivery/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            packageName: pkg.packageName,
+            packageDescription: pkg.packageDesc,
+
+            receiverName: pkg.receiverName,
+            receiverEmail: pkg.receiverEmail,
+            receiverPhone: pkg.receiverPhone,
+
+            sourceLat: source.lat,
+            sourceLng: source.lng,
+            destLat: dest.lat,
+            destLng: dest.lng
+        })
+    })
+    .then(async res => {
+        if (!res.ok) {
+            const errors = await res.json();
+            sessionStorage.setItem("formErrors", JSON.stringify(errors));
+            window.location.href = "/delivery/send";
+            return;
+        }
+
+        sessionStorage.clear();
+        window.location.href = "/success";
+    });
+}
+
+
+    function goBack() {
+        window.location.href = "/map";
+    }
+</script>
+
+</body>
+</html>

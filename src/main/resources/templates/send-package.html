@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Send Package</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        h2 { text-align: center; margin-bottom: 20px; }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 18px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        textarea { resize: none; height: 90px; }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 22px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-back { background: #e5e7eb; }
+        .btn-next { background: #667eea; color: white; }
+        .btn-next:hover { background: #556cd6; }
+
+        /* Error box */
+        .error-box {
+            display: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📦 Send Package</h2>
+
+    <!-- BACKEND ERROR BOX -->
+    <div id="errorBox" class="error-box"></div>
+
+    <form id="packageForm">
+        <label>Package Name</label>
+        <input id="packageName" placeholder="e.g. Documents">
+
+        <label>Package Description</label>
+        <textarea id="packageDesc"></textarea>
+
+        <label>Receiver Name</label>
+        <input id="receiverName">
+
+        <label>Receiver Phone</label>
+        <input id="receiverPhone">
+
+        <label>Receiver Email</label>
+        <input id="receiverEmail" type="email">
+
+        <div class="actions">
+            <button type="button" class="btn-back" onclick="goHome()">⬅ Back</button>
+            <button type="button" class="btn-next" onclick="next()">Next ➜</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    /* =========================
+       SHOW BACKEND ERRORS
+    ========================= */
+    window.onload = () => {
+        const errors = sessionStorage.getItem("formErrors");
+        if (errors) {
+            const box = document.getElementById("errorBox");
+            const parsed = JSON.parse(errors);
+
+            let html = "<b>Please fix the following:</b><br>";
+            for (const k in parsed) {
+                html += "• " + parsed[k] + "<br>";
+            }
+
+            box.innerHTML = html;
+            box.style.display = "block";
+            sessionStorage.removeItem("formErrors");
+        }
+
+        // Restore form values
+        const saved = sessionStorage.getItem("packageData");
+        if (saved) {
+            const d = JSON.parse(saved);
+            packageName.value = d.packageName || "";
+            packageDesc.value = d.packageDesc || "";
+            receiverName.value = d.receiverName || "";
+            receiverPhone.value = d.receiverPhone || "";
+            receiverEmail.value = d.receiverEmail || "";
+        }
+    };
+
+    /* =========================
+       NEXT STEP
+    ========================= */
+    function next() {
+        const data = {
+            packageName: packageName.value.trim(),
+            packageDesc: packageDesc.value.trim(),
+            receiverName: receiverName.value.trim(),
+            receiverPhone: receiverPhone.value.trim(),
+            receiverEmail: receiverEmail.value.trim()
+        };
+
+        for (const k in data) {
+            if (!data[k]) {
+                document.getElementById("errorBox").innerHTML =
+                    "All fields are required.";
+                document.getElementById("errorBox").style.display = "block";
+                return;
+            }
+        }
+
+        sessionStorage.setItem("packageData", JSON.stringify(data));
+        window.location.href = "/map";
+    }
+
+    function goHome() {
+        window.location.href = "/home";
+    }
+</script>
+
+</body>
+</html>

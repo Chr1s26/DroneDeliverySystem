@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="sidebar(user)">
+
+    <style>
+        /* ===== Base ===== */
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1f2937, #111827);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* ===== Profile ===== */
+        .profile {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 15px;
+            opacity: 0.95;
+        }
+
+        /* ===== Divider ===== */
+        .divider {
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 20px 0;
+        }
+
+        /* ===== Menu ===== */
+        .menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu li {
+            margin-bottom: 10px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .menu a:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== Bottom (Logout) ===== */
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .sidebar-bottom form {
+            margin: 0;
+        }
+
+        .logout {
+            width: 100%;
+            background: #ef4444;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .logout:hover {
+            background: #dc2626;
+        }
+    </style>
+
+    <div class="sidebar">
+        <!-- TOP -->
+        <div class="sidebar-top">
+            <div class="profile">
+                <div class="avatar">👤</div>
+                <div class="username" th:text="${user.name}">User</div>
+            </div>
+
+            <hr class="divider">
+
+            <ul class="menu">
+                <li>
+                    <a href="/home">
+                        <span class="icon">🏠</span>
+                        <span>Home</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/delivery/send">
+                        <span class="icon">📦</span>
+                        <span>Send Package</span>
+                    </a>
+                </li>
+
+                <hr class="divider">
+
+                <li>
+                    <a href="/profile/edit">
+                        <span class="icon">👤</span>
+                        <span>Edit Profile</span>
+                    </a>
+                </li>
+
+
+                <li th:if="${user.role == 'ROLE_USER'}">
+                    <a href="/history">
+                        <span class="icon">📜</span>
+                        <span>My History</span>
+                    </a>
+                </li>
+
+                <li th:if="${user.role == 'ROLE_ADMIN'}">
+                    <a href="/admin">
+                        🛠 Admin Panel
+                        <span th:if="${pendingCount > 0}"
+                              style="
+                background:#ef4444;
+                color:white;
+                padding:2px 8px;
+                border-radius:20px;
+                font-size:12px;
+                margin-left:6px;"
+                              th:text="${pendingCount}">
+        </span>
+                    </a>
+                </li>
+
+
+                <li th:if="${user.role == 'ROLE_ADMIN'}">
+                    <a href="/admin/users">
+                        <span class="icon">🧑‍💼</span>
+                        <span>Assign Admin</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="sidebar-bottom">
+            <form th:action="@{/auth/logout}" method="post">
+                <button type="submit" class="logout">🚪 Logout</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

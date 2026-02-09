@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            margin-left: 220px;
+            padding: 40px;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: white;
+        }
+
+        p {
+            color: #e5e7eb;
+        }
+
+        /* ===== STATUS FILTER ===== */
+        .filters {
+            margin: 20px 0;
+        }
+
+        .filter {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .filter:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .active-filter {
+            background: white;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            text-align: left;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        /* ===== PACKAGE CELL ===== */
+        .pkg {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .desc {
+            font-size: 13px;
+            color: #6b7280;
+            max-width: 320px;
+            line-height: 1.4;
+        }
+
+        /* ===== STATUS COLORS ===== */
+        .status {
+            font-weight: 600;
+        }
+
+        .PROCESSING { color: #f59e0b; }
+        .COMPLETED { color: #16a34a; }
+        .FAILED { color: #dc2626; }
+        .CANCELLED { color: #6b7280; }
+
+        /* ===== BUTTONS ===== */
+        button {
+            padding: 6px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .complete { background: #10b981; color: white; }
+        .fail { background: #ef4444; color: white; }
+        .cancel { background: #6b7280; color: white; }
+        .download { background: #3b82f6; color: white; }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty {
+            text-align: center;
+            padding: 40px 0;
+            color: #6b7280;
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<div th:replace="fragments/sidebar :: sidebar(${user})"></div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+    <h1>👑 Admin Panel</h1>
+    <p>Manage all delivery requests submitted by users.</p>
+
+    <!-- ===== STATUS FILTER ===== -->
+    <div class="filters">
+        <a class="filter"
+           th:classappend="${currentStatus == 'PROCESSING'} ? ' active-filter'"
+           th:href="@{/admin(status='PROCESSING')}">
+            Processing
+        </a>
+
+        <a class="filter"
+           th:classappend="${currentStatus == 'COMPLETED'} ? ' active-filter'"
+           th:href="@{/admin(status='COMPLETED')}">
+            Completed
+        </a>
+
+        <a class="filter"
+           th:classappend="${currentStatus == 'FAILED'} ? ' active-filter'"
+           th:href="@{/admin(status='FAILED')}">
+            Failed
+        </a>
+
+        <a class="filter"
+           th:classappend="${currentStatus == 'CANCELLED'} ? ' active-filter'"
+           th:href="@{/admin(status='CANCELLED')}">
+            Cancelled
+        </a>
+    </div>
+
+    <!-- ===== TABLE ===== -->
+    <div class="card">
+
+        <table th:if="${#lists.size(deliveries) > 0}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Package</th>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="d : ${deliveries}">
+                <td th:text="${d.id}"></td>
+
+                <td>
+                    <div class="pkg" th:text="${d.packageName}"></div>
+                    <div class="desc" th:text="${d.packageDescription}"></div>
+                </td>
+
+                <td th:text="${d.senderName}"></td>
+                <td th:text="${d.receiverName}"></td>
+
+                <td class="status"
+                    th:classappend="${d.status}"
+                    th:text="${d.status}">
+                </td>
+
+                <td>
+                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="status" value="COMPLETED">
+                        <button class="complete">Complete</button>
+                    </form>
+
+                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="status" value="FAILED">
+                        <button class="fail">Fail</button>
+                    </form>
+
+                    <form th:action="@{/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="status" value="CANCELLED">
+                        <button class="cancel">Cancel</button>
+                    </form>
+
+                    <a th:href="@{/admin/download/{id}(id=${d.id})}">
+                        <button class="download">Download</button>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- EMPTY STATE -->
+        <div class="empty" th:if="${#lists.size(deliveries) == 0}">
+            No deliveries found for this status 🚁
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

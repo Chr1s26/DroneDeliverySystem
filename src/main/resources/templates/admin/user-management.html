@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+        }
+
+        /* ===== Main Layout ===== */
+        .main {
+            margin-left: 220px;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        /* ===== Card Wrapper ===== */
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        /* ===== Table ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        tr:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .role {
+            font-weight: 600;
+        }
+
+        .admin {
+            color: #2563eb;
+        }
+
+        .user {
+            color: #374151;
+        }
+
+        /* ===== Buttons ===== */
+        button {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .assign {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .remove {
+            background: #ef4444;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        form {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div th:replace="fragments/sidebar :: sidebar(${user})"></div>
+
+<!-- Main -->
+<div class="main">
+    <div class="content">
+        <h1>👥 User Management</h1>
+
+        <div class="card">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.name}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.phone}"></td>
+
+                    <td class="role"
+                        th:classappend="${u.role == 'ROLE_ADMIN'} ? 'admin' : 'user'"
+                        th:text="${u.role}">
+                    </td>
+
+                    <td>
+                        <form th:if="${u.role == 'ROLE_USER'}"
+                              th:action="@{'/admin/users/' + ${u.id} + '/assign-admin'}"
+                              method="post">
+                            <button class="assign">Assign Admin</button>
+                        </form>
+
+                        <form th:if="${u.role == 'ROLE_ADMIN'}"
+                              th:action="@{'/admin/users/' + ${u.id} + '/remove-admin'}"
+                              method="post">
+                            <button class="remove">Remove Admin</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
