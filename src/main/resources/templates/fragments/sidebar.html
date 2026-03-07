@@ -114,17 +114,17 @@
             <hr class="divider">
 
             <ul class="menu">
-                <li><a href="/api/home"><span class="icon">🏠</span><span>Home</span></a></li>
-                <li><a href="/api/delivery/send"><span class="icon">📦</span><span>Send Package</span></a></li>
+                <li><a th:href="@{/api/home}"><span class="icon">🏠</span><span>Home</span></a></li>
+                <li><a th:href="@{/api/delivery/send}"><span class="icon">📦</span><span>Send Package</span></a></li>
 
                 <hr class="divider">
 
-                <li><a href="/api/profile/edit"><span class="icon">👤</span><span>Edit Profile</span></a></li>
+                <li><a th:href="@{/api/profile/edit}"><span class="icon">👤</span><span>Edit Profile</span></a></li>
 
 
                 <li th:if="${user.role == 'ROLE_USER'}"><a href="/api/history"><span class="icon">📜</span><span>My History</span></a></li>
 
-                <li th:if="${user.role == 'ROLE_ADMIN'}"><a href="/api/admin">🛠 Admin Panel<span th:if="${pendingCount > 0}" style="
+                <li th:if="${user.role == 'ROLE_ADMIN'}"><a href="/api/admin"><span class="icon">🛠</span> <span>Admin Panel</span><span th:if="${pendingCount != null and pendingCount > 0}" style="
                 background:#ef4444;
                 color:white;
                 padding:2px 8px;

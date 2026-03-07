@@ -2,10 +2,11 @@ package com.project.droneDeliverySystem.controller;
 
 import com.project.droneDeliverySystem.dto.UserProfileDto;
 import com.project.droneDeliverySystem.entity.User;
-import com.project.droneDeliverySystem.exception.ResourceNotFoundException;
 import com.project.droneDeliverySystem.repository.UserRepository;
+import com.project.droneDeliverySystem.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/api/profile")
+@RequiredArgsConstructor
 public class UserProfileController {
 
-    @Autowired
-    private UserRepository userRepo;
+    private final UserService userService;
 
     @GetMapping("/edit")
     public String editProfile(Model model,HttpSession session) {
@@ -30,10 +31,8 @@ public class UserProfileController {
         if (userId == null) {
             return "redirect:/api/auth/login";
         }
-
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found when editing profile"));
-
+        //dto
+        User user = userService.findById(userId);
 
         model.addAttribute("profile", new UserProfileDto(user));
         model.addAttribute("user", user);
@@ -49,26 +48,21 @@ public class UserProfileController {
             return "redirect:/api/auth/login";
         }
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found when editing profile"));
-
+        //dto
+        User user = userService.findById(userId);
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", user);
             return "profile/edit-profile";
         }
 
-        if (userRepo.existsByEmailAndIdNot(dto.getEmail(), userId)) {
+        if (userService.existsByEmailAndIdNot(dto.getEmail(), userId)) {
             bindingResult.rejectValue("email", "duplicate", "Email already in use");
             model.addAttribute("user", user);
             return "profile/edit-profile";
         }
 
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPhone(dto.getPhone());
-
-        userRepo.save(user);
+        userService.updateUser(user,dto);
 
         model.addAttribute("success", "Profile updated successfully");
         model.addAttribute("profile", dto);

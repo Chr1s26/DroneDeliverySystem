@@ -103,41 +103,41 @@
     source.innerText = sourceSpan;
     destination.innerText = destinationSpan;
 
-function confirm() {
-const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-    fetch("/api/delivery/create", {
-        method: "POST",
-            headers: {
-        "Content-Type": "application/json",
-        [csrfHeader]: csrfToken
-         },
-        body: JSON.stringify({
-            packageName: pkg.packageName,
-            packageDescription: pkg.packageDesc,
+    function confirm() {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+        fetch("/api/delivery/create", {
+            method: "POST",
+                headers: {
+            "Content-Type": "application/json",
+            [csrfHeader]: csrfToken
+             },
+            body: JSON.stringify({
+                packageName: pkg.packageName,
+                packageDescription: pkg.packageDesc,
 
-            receiverName: pkg.receiverName,
-            receiverEmail: pkg.receiverEmail,
-            receiverPhone: pkg.receiverPhone,
+                receiverName: pkg.receiverName,
+                receiverEmail: pkg.receiverEmail,
+                receiverPhone: pkg.receiverPhone,
 
-            sourceLat: source.lat,
-            sourceLng: source.lng,
-            destLat: dest.lat,
-            destLng: dest.lng
+                sourceLat: source.lat,
+                sourceLng: source.lng,
+                destLat: dest.lat,
+                destLng: dest.lng
+            })
         })
-    })
-    .then(async res => {
-        if (!res.ok) {
-            const errors = await res.json();
-            sessionStorage.setItem("formErrors", JSON.stringify(errors));
-            window.location.href = "/api/delivery/send";
-            return;
-        }
+        .then(async res => {
+            if (!res.ok) {
+                const errors = await res.json();
+                sessionStorage.setItem("formErrors", JSON.stringify(errors));
+                window.location.href = "/api/delivery/send";
+                return;
+            }
 
-        sessionStorage.clear();
-        window.location.href = "/api/success";
-    });
-}
+            sessionStorage.clear();
+            window.location.href = "/api/success";
+        });
+    }
 
 
     function goBack() {

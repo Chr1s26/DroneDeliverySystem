@@ -206,7 +206,7 @@
                     <form th:action="@{/api/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <input type="hidden" name="status" value="PROCESSING">
-                        <button class="cancel">Process</button>
+                        <button class="processing">Process</button>
                     </form>
 
                     <form th:action="@{/api/admin/status/{id}(id=${d.id})}" method="post" style="display:inline">

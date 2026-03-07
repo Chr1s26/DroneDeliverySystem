@@ -128,7 +128,7 @@
                 <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
 
                 <label>Email</label>
-                <input type="email" th:field="*{email}">
+                <input type="email" th:field="*{email}" readonly>
                 <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
 
                 <label>Phone</label>

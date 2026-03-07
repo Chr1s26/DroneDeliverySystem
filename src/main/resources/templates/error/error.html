@@ -37,7 +37,7 @@
     <h1 th:text="${error}">Error</h1>
     <p><strong>Status:</strong> <span th:text="${status}"></span></p>
     <p th:text="${message}">Something went wrong</p>
-    <a href="/api/home">Go Home</a>
+    <a th:href="@{/api/home}">Go Home</a>
 </div>
 </body>
 </html>

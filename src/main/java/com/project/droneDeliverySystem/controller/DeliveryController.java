@@ -4,8 +4,10 @@ import com.project.droneDeliverySystem.dto.DeliveryDto;
 import com.project.droneDeliverySystem.entity.Delivery;
 import com.project.droneDeliverySystem.entity.User;
 import com.project.droneDeliverySystem.repository.DeliveryRepository;
+import com.project.droneDeliverySystem.service.DeliveryService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,10 +21,10 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/api/delivery")
+@RequiredArgsConstructor
 public class DeliveryController {
 
-    @Autowired
-    private DeliveryRepository repo;
+    private final DeliveryService deliveryService;
 
     @GetMapping("/send")
     public String sendPackagePage(HttpSession session, Model model) {
@@ -50,24 +52,7 @@ public class DeliveryController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        Delivery d = new Delivery();
-        d.setPackageName(dto.getPackageName());
-        d.setPackageDescription(dto.getPackageDescription());
-
-        d.setSenderName(user.getName());
-        d.setReceiverName(dto.getReceiverName());
-        d.setReceiverEmail(dto.getReceiverEmail());
-        d.setReceiverPhone(dto.getReceiverPhone());
-
-        d.setSourceLat(dto.getSourceLat());
-        d.setSourceLng(dto.getSourceLng());
-        d.setDestLat(dto.getDestLat());
-        d.setDestLng(dto.getDestLng());
-
-        d.setStatus("PENDING");
-        d.setUser(user);
-
-        repo.save(d);
+        deliveryService.createDelivery(dto,user);
 
         return ResponseEntity.ok("SUCCESS");
     }
@@ -81,7 +66,6 @@ public class DeliveryController {
         if (user == null) {
             return List.of();
         }
-
-        return repo.findByUser_Id(user.getId());
+        return deliveryService.findByUserId(user.getId());
     }
 }

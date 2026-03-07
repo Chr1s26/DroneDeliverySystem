@@ -4,8 +4,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
-
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

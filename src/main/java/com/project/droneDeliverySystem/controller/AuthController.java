@@ -8,14 +8,17 @@ import com.project.droneDeliverySystem.exception.OtpExpiredException;
 import com.project.droneDeliverySystem.exception.OtpInvalidException;
 import com.project.droneDeliverySystem.repository.UserRepository;
 import com.project.droneDeliverySystem.service.AuthService;
+import com.project.droneDeliverySystem.service.CustomUserPrincipal;
 import com.project.droneDeliverySystem.service.OTPService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -23,23 +26,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    UserRepository userRepo;
-    @Autowired
-    PasswordEncoder encoder;
-    @Autowired
-    AuthService authService;
-    @Autowired
-    OTPService otpService;
-    @Autowired
-    SecurityContextRepository securityContextRepository;
+    private final UserRepository userRepo;
+    private final AuthService authService;
+    private final OTPService otpService;
+    private final SecurityContextRepository securityContextRepository;
+    private final AuthenticationManager authenticationManager;
 
     @GetMapping("/login")
     public String login(Model model) {
@@ -48,22 +46,31 @@ public class AuthController {
 
     @PostMapping("/login")
     public String login(@RequestParam String email, @RequestParam String password, Model model, HttpSession session, HttpServletRequest request, HttpServletResponse response) {
-        User user = userRepo.findByEmail(email).orElse(null);
+        try {
 
-        if (user == null || !encoder.matches(password, user.getPassword())) {
-            model.addAttribute("error", "Invalid login !!");
+            Authentication authentication =
+                    authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(email, password)
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
+
+
+            CustomUserPrincipal principal =
+                    (CustomUserPrincipal) authentication.getPrincipal();
+            //dto
+            User user = principal.getUser();
+
+            session.setAttribute("user", user);
+            session.setAttribute("userId", user.getId());
+
+            return "redirect:/api/home";
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Invalid login!");
             return "auth/login";
         }
-
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, List.of(authority));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
-
-        session.setAttribute("user", user);
-        session.setAttribute("userId", user.getId());
-        return "redirect:/api/home";
     }
 
 
@@ -88,13 +95,7 @@ public class AuthController {
             return "auth/register";
         }
 
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setPassword(request.getPassword());
-
-        String result = authService.register(user, request.getConfirmPassword());
+        String result = authService.register(request);
 
         if (!"SUCCESS".equals(result)) {
             model.addAttribute("error", result);
@@ -201,8 +202,9 @@ public class AuthController {
 
 
     @PostMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
+    public String logout(HttpServletRequest request) {
+        SecurityContextHolder.clearContext();
+        request.getSession().invalidate();
         return "redirect:/api/auth/login";
     }
 

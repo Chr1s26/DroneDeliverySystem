@@ -5,7 +5,10 @@ import com.project.droneDeliverySystem.entity.User;
 import com.project.droneDeliverySystem.exception.ResourceNotFoundException;
 import com.project.droneDeliverySystem.repository.DeliveryRepository;
 import com.project.droneDeliverySystem.repository.UserRepository;
+import com.project.droneDeliverySystem.service.DeliveryService;
+import com.project.droneDeliverySystem.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,13 +19,11 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class DeliveryHistoryController {
 
-    @Autowired
-    private DeliveryRepository deliveryRepo;
-
-    @Autowired
-    private UserRepository userRepo;
+    private final UserService userService;
+    private final DeliveryService deliveryService;
 
     @GetMapping("/history")
     public String viewHistory(Model model, HttpSession session) {
@@ -33,11 +34,8 @@ public class DeliveryHistoryController {
             return "redirect:/api/auth/login";
         }
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found when viewing history"));
-
-        List<Delivery> deliveries = deliveryRepo.findByUser(user);
-
+        User user = userService.findById(userId);
+        List<Delivery> deliveries = deliveryService.findByUserId(user.getId());
         model.addAttribute("deliveries", deliveries);
         model.addAttribute("user", user);
 

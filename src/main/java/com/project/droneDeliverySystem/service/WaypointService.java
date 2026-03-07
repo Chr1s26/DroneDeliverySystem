@@ -1,6 +1,7 @@
 package com.project.droneDeliverySystem.service;
 
 import com.project.droneDeliverySystem.entity.Delivery;
+import com.project.droneDeliverySystem.exception.ResourceNotFoundException;
 import com.project.droneDeliverySystem.repository.DeliveryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class WaypointService {
     DeliveryRepository repo;
 
     public File generate(Long deliveryId) {
-        Delivery d = repo.findById(deliveryId).orElseThrow();
+        Delivery d = repo.findById(deliveryId).orElseThrow(() -> new ResourceNotFoundException("Delivery not found"));
         File file = new File("delivery_" + deliveryId + ".waypoints");
 
         try (PrintWriter pw = new PrintWriter(file)) {
@@ -28,7 +29,7 @@ public class WaypointService {
                     d.getDestLat() + "\t" + d.getDestLng() + "\t10\t1");
             pw.println("2\t0\t0\t20\t0\t0\t0\t0\t0\t0\t0\t1");
         } catch (FileNotFoundException e) {
-            throw new ResourceAccessException("Waypoint File Not found");
+            throw new RuntimeException("Waypoint file creation failed");
         }
         return file;
     }

@@ -1,5 +1,6 @@
 package com.project.droneDeliverySystem.service;
 
+import com.project.droneDeliverySystem.dto.RegisterRequest;
 import com.project.droneDeliverySystem.entity.User;
 import com.project.droneDeliverySystem.exception.ResourceNotFoundException;
 import com.project.droneDeliverySystem.repository.UserRepository;
@@ -18,31 +19,22 @@ public class AuthService {
     @Autowired
     private PasswordEncoder encoder;
 
-    public String register(User user, String confirmPassword) {
-
-        if (!user.getPassword().equals(confirmPassword)) {
-            return "Password does not match";
-        }
-
-        if (userRepo.findByEmail(user.getEmail()).isPresent()) {
-            return "Email already exists";
-        }
-
-        user.setPassword(encoder.encode(user.getPassword()));
+    public String register(RegisterRequest request) {
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setPassword(encoder.encode(request.getPassword()));
         user.setRole("ROLE_USER");
-
         userRepo.save(user);
         return "SUCCESS";
     }
 
     public void resetPassword(String email, String password) {
-        Optional<User> userOp = userRepo.findByEmail(email);
-        User user = userOp.get();
-        if (userOp.isPresent()) {
-            user.setPassword(encoder.encode(password));
-            userRepo.save(user);
-        }else{
-            throw new ResourceNotFoundException("User Not Found When resetting password");
-        }
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setPassword(encoder.encode(password));
+        userRepo.save(user);
     }
 }
