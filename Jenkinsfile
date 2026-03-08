@@ -7,12 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/Chr1s26/DroneDeliverySystem.git'
-            }
-        }
-
         stage('Build Jar') {
             steps {
                 sh 'mvn clean package -DskipTests'
@@ -28,9 +22,9 @@ pipeline {
         stage('Login DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub',
-                    usernameVariable: 'htetkyawswarlinn',
-                    passwordVariable: 'Htetkyawswarlinn682'
+                    credentialsId: 'docker-hub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                 }
